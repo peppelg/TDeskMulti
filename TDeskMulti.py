@@ -15,7 +15,7 @@ elif os.name == 'mac':
     quit()
 else:
     telegram = dir+'bin/Telegram/Telegram'
-strings = {'new_account': 'Nuovo account', 'update_tdesk': 'Aggiorna TDesktop', 'start': 'Avvia', 'edit_name': 'Cambia nome', 'delete_account': 'Elimina account', 'enter_acc_name': 'Inserisci il nome dell\'account', 'e_not_selected_account': 'Seleziona un account dal menu', 'error': 'Errore', 'sure': 'Sei sicuro?'}
+strings = {'new_account': 'Nuovo account', 'update_tdesk': 'Aggiorna TDesktop', 'start': 'Avvia', 'edit_name': 'Cambia nome', 'delete_account': 'Elimina account', 'enter_acc_name': 'Inserisci il nome dell\'account', 'e_not_selected_account': 'Seleziona un account dal menu', 'e_account_exists': 'Esiste già un account con questo nome.', 'error': 'Errore', 'sure': 'Sei sicuro?'}
 
 def start_account(account):
     global telegram
@@ -91,13 +91,17 @@ while True:
         break
     if event == strings['new_account']:
         name = sg.PopupGetText(strings['enter_acc_name'], strings['enter_acc_name'])
-        account_id = str(uuid.uuid4())
-        os.makedirs(dir+'accounts/'+account_id)
-        accounts[name] = account_id
-        file = open(dir+'accounts.json', 'w')
-        file.write(json.dumps(accounts))
-        file.close()
-        window.FindElement('selected_account').Update(list(accounts.keys()))
+        if name:
+            if not name in accounts:
+                account_id = str(uuid.uuid4())
+                os.makedirs(dir+'accounts/'+account_id)
+                accounts[name] = account_id
+                file = open(dir+'accounts.json', 'w')
+                file.write(json.dumps(accounts))
+                file.close()
+                window.FindElement('selected_account').Update(list(accounts.keys()))
+            else:
+                sg.Popup(strings['error'], strings['e_account_exists'])
     if event == strings['update_tdesk']:
         download_tdesk()
     if event == strings['start']:
