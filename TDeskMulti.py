@@ -20,7 +20,7 @@ import requests
 from archive import extract
 from shutil import rmtree
 
-PySimpleGUI.SetOptions(icon=os.path.dirname(os.path.realpath(__file__))+'/icon.png')
+sg.SetOptions(icon=os.path.dirname(os.path.realpath(__file__))+'/icon.png')
 dir = os.path.dirname(os.path.realpath(__file__))+'/.TDeskMulti/'
 if os.name == 'nt':
     telegram = dir+'bin/Telegram/Telegram.exe'
