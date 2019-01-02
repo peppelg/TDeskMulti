@@ -10,12 +10,10 @@ if os.name == 'nt':
     telegram = dir+'bin/Telegram/Telegram.exe'
 elif os.name == 'mac':
     print('MacOS is not supported.')
+    quit()
 else:
     telegram = dir+'bin/Telegram/Telegram'
 strings = {'new_account': 'Nuovo account', 'update_tdesk': 'Aggiorna TDesktop', 'start': 'Avvia', 'edit': 'Modifica', 'enter_acc_name': 'Inserisci il nome dell\'account'}
-layout = [  [sg.Button(strings['new_account']), sg.Button(strings['update_tdesk'])],
-            [sg.Listbox(values=['Account 1', 'Account 2', 'Account 3'], size=(30, 6)), sg.Button(strings['start']), sg.Button(strings['edit'])]  ]
-window = sg.Window('TDeskMulti').Layout(layout)
 
 def start_account(account):
     pass
@@ -79,13 +77,21 @@ accounts = json.loads(file.read())
 file.close()
 if not os.path.exists(telegram):
     download_tdesk()
+layout = [  [sg.Button(strings['new_account']), sg.Button(strings['update_tdesk'])],
+            [sg.Listbox(values=list(accounts.values()), size=(50, 10)), sg.Button(strings['start']), sg.Button(strings['edit'])]  ]
+window = sg.Window('TDeskMulti').Layout(layout)
 while True:
     event, values = window.Read()
     if event is None or event == 'Exit':
         break
     if event == strings['new_account']:
         name = sg.PopupGetText(strings['enter_acc_name'], strings['enter_acc_name'])
-        os.makedirs(dir+'accounts/'+uuid.uuid4())
+        account_id = str(uuid.uuid4())
+        os.makedirs(dir+'accounts/'+account_id)
+        accounts[account_id] = name
+        file = open(dir+'accounts.json', 'w')
+        file.write(json.dumps(accounts))
+        file.close()
         start_account(name)
     if event == strings['update_tdesk']:
         download_tdesk()
