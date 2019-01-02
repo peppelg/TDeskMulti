@@ -1,4 +1,5 @@
 import os
+import subprocess
 import json
 import uuid
 import PySimpleGUI as sg
@@ -17,7 +18,10 @@ else:
 strings = {'new_account': 'Nuovo account', 'update_tdesk': 'Aggiorna TDesktop', 'start': 'Avvia', 'edit_name': 'Cambia nome', 'delete_account': 'Elimina account', 'enter_acc_name': 'Inserisci il nome dell\'account', 'e_not_selected_account': 'Seleziona un account dal menu', 'error': 'Errore', 'sure': 'Sei sicuro?'}
 
 def start_account(account):
-    print(account)
+    global telegram
+    global accounts
+    subprocess.Popen([telegram, '-many', '-workdir', accounts[account]])
+    quit()
 def download_tdesk():
     global dir
     layout = [  [sg.InputCombo(['Telegram Desktop', 'Telegram Desktop Alpha'])],
@@ -94,13 +98,13 @@ while True:
         file.write(json.dumps(accounts))
         file.close()
         window.FindElement('selected_account').Update(list(accounts.keys()))
-        start_account(name)
     if event == strings['update_tdesk']:
         download_tdesk()
     if event == strings['start']:
         if values['selected_account'] == []:
             sg.Popup(strings['error'], strings['e_not_selected_account'])
         else:
+            window.Close()
             start_account(values['selected_account'][0])
     if event == strings['edit_name']:
         if values['selected_account'] == []:
