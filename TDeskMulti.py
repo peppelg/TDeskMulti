@@ -4,6 +4,7 @@ import uuid
 import PySimpleGUI as sg
 import requests
 from archive import extract
+from shutil import rmtree
 
 dir = os.path.dirname(os.path.realpath(__file__))+'/.TDeskMulti/'
 if os.name == 'nt':
@@ -13,10 +14,10 @@ elif os.name == 'mac':
     quit()
 else:
     telegram = dir+'bin/Telegram/Telegram'
-strings = {'new_account': 'Nuovo account', 'update_tdesk': 'Aggiorna TDesktop', 'start': 'Avvia', 'edit': 'Modifica', 'enter_acc_name': 'Inserisci il nome dell\'account'}
+strings = {'new_account': 'Nuovo account', 'update_tdesk': 'Aggiorna TDesktop', 'start': 'Avvia', 'edit_name': 'Cambia nome', 'delete_account': 'Elimina account', 'enter_acc_name': 'Inserisci il nome dell\'account', 'e_not_selected_account': 'Seleziona un account dal menu', 'error': 'Errore', 'sure': 'Sei sicuro?'}
 
 def start_account(account):
-    pass
+    print(account)
 def download_tdesk():
     global dir
     layout = [  [sg.InputCombo(['Telegram Desktop', 'Telegram Desktop Alpha'])],
@@ -78,7 +79,7 @@ file.close()
 if not os.path.exists(telegram):
     download_tdesk()
 layout = [  [sg.Button(strings['new_account']), sg.Button(strings['update_tdesk'])],
-            [sg.Listbox(values=list(accounts.values()), size=(40, 10)), sg.Column([[sg.Button(strings['start'])], [sg.Button(strings['edit'])]])]  ]
+            [sg.Listbox(values=list(accounts.keys()), size=(40, 10), bind_return_key=True, key='selected_account'), sg.Column([[sg.Button(strings['start'])], [sg.Button(strings['edit_name'])], [sg.Button(strings['delete_account'])]])]  ]
 window = sg.Window('TDeskMulti').Layout(layout)
 while True:
     event, values = window.Read()
@@ -88,12 +89,41 @@ while True:
         name = sg.PopupGetText(strings['enter_acc_name'], strings['enter_acc_name'])
         account_id = str(uuid.uuid4())
         os.makedirs(dir+'accounts/'+account_id)
-        accounts[account_id] = name
+        accounts[name] = account_id
         file = open(dir+'accounts.json', 'w')
         file.write(json.dumps(accounts))
         file.close()
+        window.FindElement('selected_account').Update(list(accounts.keys()))
         start_account(name)
     if event == strings['update_tdesk']:
         download_tdesk()
+    if event == strings['start']:
+        if values['selected_account'] == []:
+            sg.Popup(strings['error'], strings['e_not_selected_account'])
+        else:
+            start_account(values['selected_account'][0])
+    if event == strings['edit_name']:
+        if values['selected_account'] == []:
+            sg.Popup(strings['error'], strings['e_not_selected_account'])
+        else:
+            name = sg.PopupGetText(strings['enter_acc_name'], strings['enter_acc_name'])
+            accounts[name] = accounts[values['selected_account'][0]]
+            del accounts[values['selected_account'][0]]
+            window.FindElement('selected_account').Update(list(accounts.keys()))
+            file = open(dir+'accounts.json', 'w')
+            file.write(json.dumps(accounts))
+            file.close()
+    if event == strings['delete_account']:
+        if values['selected_account'] == []:
+            sg.Popup(strings['error'], strings['e_not_selected_account'])
+        else:
+            if sg.PopupYesNo(strings['sure']) == 'Yes':
+                account_id = accounts[values['selected_account'][0]]
+                del accounts[values['selected_account'][0]]
+                window.FindElement('selected_account').Update(list(accounts.keys()))
+                file = open(dir+'accounts.json', 'w')
+                file.write(json.dumps(accounts))
+                file.close()
+                rmtree(dir+'accounts/'+account_id)
 
 window.Close()
