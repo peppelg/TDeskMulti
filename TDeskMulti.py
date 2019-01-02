@@ -20,7 +20,7 @@ strings = {'new_account': 'Nuovo account', 'update_tdesk': 'Aggiorna TDesktop', 
 def start_account(account):
     global telegram
     global accounts
-    subprocess.Popen([telegram, '-many', '-workdir', accounts[account]])
+    subprocess.Popen([telegram, '-workdir', dir+'accounts/'+accounts[account]])
     quit()
 def download_tdesk():
     global dir
