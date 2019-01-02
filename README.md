@@ -1,4 +1,4 @@
-# TDeskMulti
+# TDeskMulti <img src="https://raw.githubusercontent.com/peppelg/TDeskMulti/master/icon.png" width="30" height="30" />
 Usa più account con Telegram Desktop.
 
 ![TDeskMulti](https://i.imgur.com/IIbqieu.png)
