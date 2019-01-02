@@ -78,7 +78,7 @@ file.close()
 if not os.path.exists(telegram):
     download_tdesk()
 layout = [  [sg.Button(strings['new_account']), sg.Button(strings['update_tdesk'])],
-            [sg.Listbox(values=list(accounts.values()), size=(50, 10)), sg.Button(strings['start']), sg.Button(strings['edit'])]  ]
+            [sg.Listbox(values=list(accounts.values()), size=(40, 10)), sg.Column([[sg.Button(strings['start'])], [sg.Button(strings['edit'])]])]  ]
 window = sg.Window('TDeskMulti').Layout(layout)
 while True:
     event, values = window.Read()
