@@ -41,11 +41,10 @@ def start_account(account):
     sys.exit(0)
 def download_tdesk():
     global dir
+    global icon
     layout = [  [sg.InputCombo(['Telegram Desktop', 'Telegram Desktop Alpha'], readonly=True)],
                 [sg.OK()]                                                     ]
-    window = sg.Window('Telegram Desktop version').Layout(layout)
-    if os.path.exists(resource_path('icon.ico')):
-        window.SetIcon(resource_path('icon.ico'))
+    window = sg.Window('Telegram Desktop version', icon=icon).Layout(layout)
     event, number = window.Read()
     version = number[0]
     window.Close()
@@ -65,9 +64,7 @@ def download_tdesk():
             file_name = dir+'telegram.tar.xz'
     layout = [  [sg.Text('Downloading Telegram Desktop...')],
                 [sg.ProgressBar(100, orientation='h', size=(20, 20), key='progressbar')]  ]
-    window = sg.Window('Downloading Telegram Desktop...').Layout(layout)
-    if os.path.exists(resource_path('icon.ico')):
-        window.SetIcon(resource_path('icon.ico'))
+    window = sg.Window('Downloading Telegram Desktop...', icon=icon).Layout(layout)
     progress_bar = window.FindElement('progressbar')
     event, values = window.Read(timeout=0)
     with open(file_name, 'wb') as f:
@@ -107,19 +104,20 @@ if not os.path.exists(dir+'accounts.json'):
 file = open(dir+'accounts.json', 'r')
 accounts = json.loads(file.read())
 file.close()
+icon = resource_path('icon.ico')
+if not os.path.exists(icon):
+    icon = 'https://raw.githubusercontent.com/peppelg/TDeskMulti/master/icon.ico'
 if not os.path.exists(telegram):
     download_tdesk()
 layout = [  [sg.Button(strings['new_account']), sg.Button(strings['update_tdesk'])],
             [sg.Listbox(values=list(accounts.keys()), size=(40, 10), bind_return_key=True, key='selected_account'), sg.Column([[sg.Button(strings['start'])], [sg.Button(strings['edit_name'])], [sg.Button(strings['delete_account'])]])]  ]
-window = sg.Window('TDeskMulti').Layout(layout)
-if os.path.exists(resource_path('icon.ico')):
-    window.SetIcon(resource_path('icon.ico'))
+window = sg.Window('TDeskMulti', icon=icon).Layout(layout)
 while True:
     event, values = window.Read()
     if event is None or event == 'Exit':
         break
     if event == strings['new_account']:
-        name = sg.PopupGetText(strings['enter_acc_name'], strings['enter_acc_name'])
+        name = sg.PopupGetText(strings['enter_acc_name'], strings['enter_acc_name'], icon=icon)
         if name:
             if not name in accounts:
                 account_id = str(uuid.uuid4())
@@ -130,20 +128,20 @@ while True:
                 file.close()
                 window.FindElement('selected_account').Update(list(accounts.keys()))
             else:
-                sg.Popup(strings['error'], strings['e_account_exists'])
+                sg.Popup(strings['error'], strings['e_account_exists'], icon=icon)
     if event == strings['update_tdesk']:
         download_tdesk()
     if event == strings['start']:
         if values['selected_account'] == []:
-            sg.Popup(strings['error'], strings['e_not_selected_account'])
+            sg.Popup(strings['error'], strings['e_not_selected_account'], icon=icon)
         else:
             window.Close()
             start_account(values['selected_account'][0])
     if event == strings['edit_name']:
         if values['selected_account'] == []:
-            sg.Popup(strings['error'], strings['e_not_selected_account'])
+            sg.Popup(strings['error'], strings['e_not_selected_account'], icon=icon)
         else:
-            name = sg.PopupGetText(strings['enter_acc_name'], strings['enter_acc_name'])
+            name = sg.PopupGetText(strings['enter_acc_name'], strings['enter_acc_name'], icon=icon)
             accounts[name] = accounts[values['selected_account'][0]]
             del accounts[values['selected_account'][0]]
             window.FindElement('selected_account').Update(list(accounts.keys()))
@@ -152,9 +150,9 @@ while True:
             file.close()
     if event == strings['delete_account']:
         if values['selected_account'] == []:
-            sg.Popup(strings['error'], strings['e_not_selected_account'])
+            sg.Popup(strings['error'], strings['e_not_selected_account'], icon=icon)
         else:
-            if sg.PopupYesNo(strings['sure']) == 'Yes':
+            if sg.PopupYesNo(strings['sure'], icon=icon) == 'Yes':
                 account_id = accounts[values['selected_account'][0]]
                 del accounts[values['selected_account'][0]]
                 window.FindElement('selected_account').Update(list(accounts.keys()))
