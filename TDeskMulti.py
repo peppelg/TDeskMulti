@@ -106,7 +106,7 @@ accounts = json.loads(file.read())
 file.close()
 icon = resource_path('icon.ico')
 if not os.path.exists(icon):
-    icon = 'https://raw.githubusercontent.com/peppelg/TDeskMulti/master/icon.ico'
+    icon = None
 if not os.path.exists(telegram):
     download_tdesk()
 layout = [  [sg.Button(strings['new_account']), sg.Button(strings['update_tdesk'])],
