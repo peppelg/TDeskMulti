@@ -12,6 +12,7 @@
 #   See the License for the specific language governing permissions and
 #   limitations under the License.
 import os
+import sys
 import subprocess
 import json
 import uuid
@@ -22,7 +23,10 @@ import PySimpleGUI as sg
 from archive import extract
 from shutil import rmtree
 
-dir = os.path.dirname(os.path.realpath(__file__))+'/.TDeskMulti/'
+if (os.name == 'nt' and getattr(sys, 'frozen', False)):
+    dir = os.getenv('APPDATA')+'/.TDeskMulti/'
+else:
+    dir = os.path.dirname(os.path.realpath(__file__))+'/.TDeskMulti/'
 if os.name == 'nt':
     telegram = dir+'bin/Telegram/Telegram.exe'
 elif os.name == 'mac':

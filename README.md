@@ -12,10 +12,11 @@ Feature:
 
 Installazione:
 --------------
-Puoi scaricare l'[eseguibile Windows](https://github.com/peppelg/TDeskMulti/blob/master/executables/TDeskMulti.exe?raw=true) o quello
-[Linux](https://github.com/peppelg/TDeskMulti/blob/master/executables/TDeskMulti?raw=true) (testato solo su Manjaro)
+- [Windows installer](https://github.com/peppelg/TDeskMulti/blob/master/executables/TDeskMulti_setup.exe?raw=true)
+- [Windows portable](https://github.com/peppelg/TDeskMulti/blob/master/executables/TDeskMulti.exe?raw=true)
+- [Eseguibile Linux](https://github.com/peppelg/TDeskMulti/blob/master/executables/TDeskMulti?raw=true) (testato solo su Manjaro)
 
-Per installarlo manualmente clona la repository (`git clone https://github.com/peppelg/TDeskMulti`), installa le dipendenze: `pip install -r requirements.txt` e
+Per installarlo manualmente clona il repository (`git clone https://github.com/peppelg/TDeskMulti`), installa le dipendenze: `pip install -r requirements.txt` e
 avvia TDeskMulti (`python TDeskMulti.py`).
 
 **TDeskMulti funziona solo su python 3.x**
