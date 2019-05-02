@@ -1,3 +1,4 @@
-PySimpleGUI==3.21.0
-requests==2.20.1
-python-archive==0.2
+requests==2.21.0
+python_archive==0.2
+PySimpleGUI==3.29.0
+archive==0.3
