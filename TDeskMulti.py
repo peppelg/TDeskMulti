@@ -1,4 +1,4 @@
-#   Copyright 2019 peppelg
+#   Copyright 2019-2020 peppelg
 #
 #   Licensed under the Apache License, Version 2.0 (the "License");
 #   you may not use this file except in compliance with the License.
@@ -20,13 +20,25 @@ import locale
 import base64
 import requests
 import PySimpleGUI as sg
+# import PySimpleGUIQt as sg
 from archive import extract
 from shutil import rmtree
+import argparse
 
-if (os.name == 'nt' and getattr(sys, 'frozen', False)):
-    dir = os.getenv('APPDATA')+'/.TDeskMulti/'
+parser = argparse.ArgumentParser(description='Telegram Desktop multi-account.')
+parser.add_argument('--dir', dest='directory',
+                    help='Directory where TDeskmulti will store your Telegram accounts')
+args = parser.parse_args()
+
+if args.directory and os.path.isdir(args.directory):
+    dir = os.path.realpath(args.directory) + '/.TDeskMulti/'
 else:
-    dir = os.path.dirname(os.path.realpath(__file__))+'/.TDeskMulti/'
+    if (os.name == 'nt' and getattr(sys, 'frozen', False)):
+        dir = os.getenv('APPDATA')+'/.TDeskMulti/'
+    else:
+        dir = os.path.dirname(os.path.realpath(__file__)) + '/.TDeskMulti/'
+
+
 if os.name == 'nt':
     telegram = dir+'bin/Telegram/Telegram.exe'
 elif os.name == 'mac':
@@ -34,21 +46,29 @@ elif os.name == 'mac':
     quit()
 else:
     telegram = dir+'bin/Telegram/Telegram'
-strings = {'new_account': 'Nuovo account', 'update_tdesk': 'Aggiorna TDesktop', 'start': 'Avvia', 'edit_name': 'Cambia nome', 'delete_account': 'Elimina account', 'enter_acc_name': 'Inserisci il nome dell\'account', 'e_not_selected_account': 'Seleziona un account dal menu', 'e_account_exists': 'Esiste già un account con questo nome.', 'error': 'Errore', 'sure': 'Sei sicuro?'}
-strings_en = {'new_account': 'Add Account', 'update_tdesk': 'Update Telegram Desktop', 'start': 'Start', 'edit_name': 'Edit name', 'delete_account': 'Delete account', 'enter_acc_name': 'Enter the account name', 'e_not_selected_account': 'Pls select an account', 'e_account_exists': 'An account with this name already exists.', 'error': 'Error', 'sure': 'Are you sure?'}
+strings = {'new_account': 'Nuovo account', 'update_tdesk': 'Aggiorna TDesktop', 'start': 'Avvia', 'edit_name': 'Cambia nome', 'delete_account': 'Elimina account', 'enter_acc_name': 'Inserisci il nome dell\'account',
+           'e_not_selected_account': 'Seleziona un account dal menu', 'e_account_exists': 'Esiste già un account con questo nome.', 'error': 'Errore', 'sure': 'Sei sicuro?'}
+strings_en = {'new_account': 'Add Account', 'update_tdesk': 'Update Telegram Desktop', 'start': 'Start', 'edit_name': 'Edit name', 'delete_account': 'Delete account',
+              'enter_acc_name': 'Enter the account name', 'e_not_selected_account': 'Pls select an account', 'e_account_exists': 'An account with this name already exists.', 'error': 'Error', 'sure': 'Are you sure?'}
 if not locale.getdefaultlocale()[0] == 'it_IT':
     strings = strings_en
+
+sg.theme('SystemDefault')
+# sg.theme('SystemDefaultForReal')
+
 
 def start_account(account):
     global telegram
     global accounts
     subprocess.Popen([telegram, '-workdir', dir+'accounts/'+accounts[account]])
     sys.exit(0)
+
+
 def download_tdesk():
     global dir
     global icon
-    layout = [  [sg.InputCombo(['Telegram Desktop', 'Telegram Desktop Alpha'], readonly=True)],
-                [sg.OK()]                                                                    ]
+    layout = [[sg.Combo(['Telegram Desktop', 'Telegram Desktop Alpha'], readonly=True, default_value='Telegram Desktop')],
+              [sg.OK()]]
     window = sg.Window('Telegram Desktop version', icon=icon).Layout(layout)
     event, number = window.Read()
     version = number[0]
@@ -69,9 +89,10 @@ def download_tdesk():
         else:
             link = 'https://telegram.org/dl/desktop/linux?beta=1'
             file_name = dir+'telegram.tar.xz'
-    layout = [  [sg.Text('Downloading Telegram Desktop...')],
-                [sg.ProgressBar(100, orientation='h', size=(20, 20), key='progressbar')]  ]
-    window = sg.Window('Downloading Telegram Desktop...', icon=icon).Layout(layout)
+    layout = [[sg.Text('Downloading Telegram Desktop...')],
+              [sg.ProgressBar(100, orientation='h', size=(20, 20), key='progressbar')]]
+    window = sg.Window('Downloading Telegram Desktop...',
+                       icon=icon).Layout(layout)
     progress_bar = window.FindElement('progressbar')
     event, values = window.Read(timeout=0)
     with open(file_name, 'wb') as f:
@@ -91,12 +112,15 @@ def download_tdesk():
     extract(file_name, dir+'bin/', method='insecure')
     os.remove(file_name)
     window.Close()
+
+
 def resource_path(relative_path):
     try:
         base_path = sys._MEIPASS
     except Exception:
         base_path = os.path.abspath('')
     return os.path.join(base_path, relative_path)
+
 
 if not os.path.exists(dir):
     os.makedirs(dir)
@@ -118,15 +142,16 @@ if not os.path.exists(icon) or os.name == 'posix':
 if not os.path.exists(telegram):
     if download_tdesk() == 'exit':
         sys.exit(0)
-layout = [  [sg.Button(strings['new_account']), sg.Button(strings['update_tdesk'])],
-            [sg.Listbox(values=list(accounts.keys()), size=(40, 10), bind_return_key=True, key='selected_account'), sg.Column([[sg.Button(strings['start'])], [sg.Button(strings['edit_name'])], [sg.Button(strings['delete_account'])]])]  ]
+layout = [[sg.Button(strings['new_account']), sg.Button(strings['update_tdesk'])],
+          [sg.Listbox(values=list(accounts.keys()), size=(40, 10), bind_return_key=True, key='selected_account'), sg.Column([[sg.Button(strings['start'])], [sg.Button(strings['edit_name'])], [sg.Button(strings['delete_account'])]])]]
 window = sg.Window('TDeskMulti', icon=icon).Layout(layout)
 while True:
     event, values = window.Read()
     if event is None or event == 'Exit':
         break
     if event == strings['new_account']:
-        name = sg.PopupGetText(strings['enter_acc_name'], strings['enter_acc_name'], icon=icon)
+        name = sg.PopupGetText(
+            strings['enter_acc_name'], strings['enter_acc_name'], icon=icon)
         if name:
             if not name in accounts:
                 account_id = str(uuid.uuid4())
@@ -135,36 +160,44 @@ while True:
                 file = open(dir+'accounts.json', 'w')
                 file.write(json.dumps(accounts))
                 file.close()
-                window.FindElement('selected_account').Update(list(accounts.keys()))
+                window.FindElement('selected_account').Update(
+                    list(accounts.keys()))
             else:
-                sg.Popup(strings['error'], strings['e_account_exists'], icon=icon)
+                sg.Popup(strings['error'],
+                         strings['e_account_exists'], icon=icon)
     if event == strings['update_tdesk']:
         download_tdesk()
     if event == strings['start']:
         if values['selected_account'] == []:
-            sg.Popup(strings['error'], strings['e_not_selected_account'], icon=icon)
+            sg.Popup(strings['error'],
+                     strings['e_not_selected_account'], icon=icon)
         else:
             window.Close()
             start_account(values['selected_account'][0])
     if event == strings['edit_name']:
         if values['selected_account'] == []:
-            sg.Popup(strings['error'], strings['e_not_selected_account'], icon=icon)
+            sg.Popup(strings['error'],
+                     strings['e_not_selected_account'], icon=icon)
         else:
-            name = sg.PopupGetText(strings['enter_acc_name'], strings['enter_acc_name'], icon=icon)
+            name = sg.PopupGetText(
+                strings['enter_acc_name'], strings['enter_acc_name'], icon=icon)
             accounts[name] = accounts[values['selected_account'][0]]
             del accounts[values['selected_account'][0]]
-            window.FindElement('selected_account').Update(list(accounts.keys()))
+            window.FindElement('selected_account').Update(
+                list(accounts.keys()))
             file = open(dir+'accounts.json', 'w')
             file.write(json.dumps(accounts))
             file.close()
     if event == strings['delete_account']:
         if values['selected_account'] == []:
-            sg.Popup(strings['error'], strings['e_not_selected_account'], icon=icon)
+            sg.Popup(strings['error'],
+                     strings['e_not_selected_account'], icon=icon)
         else:
             if sg.PopupYesNo(strings['sure'], icon=icon) == 'Yes':
                 account_id = accounts[values['selected_account'][0]]
                 del accounts[values['selected_account'][0]]
-                window.FindElement('selected_account').Update(list(accounts.keys()))
+                window.FindElement('selected_account').Update(
+                    list(accounts.keys()))
                 file = open(dir+'accounts.json', 'w')
                 file.write(json.dumps(accounts))
                 file.close()

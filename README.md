@@ -12,11 +12,11 @@ Feature:
 
 Installazione:
 --------------
-- [Windows installer](https://github.com/peppelg/TDeskMulti/blob/master/executables/TDeskMulti_setup.exe?raw=true)
-- [Windows portable](https://github.com/peppelg/TDeskMulti/blob/master/executables/TDeskMulti.exe?raw=true)
-- [Eseguibile Linux](https://github.com/peppelg/TDeskMulti/blob/master/executables/TDeskMulti?raw=true) (testato solo su Manjaro)
+- [Release](https://github.com/peppelg/TDeskMulti/releases)
 
 Per installarlo manualmente clona il repository (`git clone https://github.com/peppelg/TDeskMulti`), installa le dipendenze: `pip install -r requirements.txt` e
 avvia TDeskMulti (`python TDeskMulti.py`).
+
+Puoi specificare l'argomento `--dir` per cambiare la cartella dove TDeskmulti salverà i tuoi account Telegram (utile in dualboot).
 
 **TDeskMulti funziona solo su python 3.x**
